@@ -1,14 +1,14 @@
 import turtle
 import math
 import time
+import random
 from itertools import cycle
 from heapq import heappush, heappop
 from celestialbody import SolarSystemBody
 from body_calculations import calculate_all_body_interactions
  
-
 class Planet(SolarSystemBody):
-    colours = cycle(["red", "green", "blue", "grey"])
+    colours = cycle(["teal", "magenta", "blue", "red", "green", "yellow"])
 
     def __init__(self, solar_system, mass, position=(0, 0), velocity=(0, 0), distance_to_sun=0):
         super().__init__(solar_system, mass, position, velocity)
@@ -47,6 +47,26 @@ class SolarSystem:
         self.solar_system.setup(width, height)
         self.solar_system.bgcolor("white")
         self.bodies = []
+
+    def move_meteor(meteor):
+        meteor['x'] += random.uniform(-meteor['velocity_x'], meteor['velocity_x'])
+        meteor['y'] += random.uniform(-meteor['velocity_y'], meteor['velocity_y'])
+
+        if meteor['x'] < 0 or meteor['x'] > SolarSystem:
+            meteor['velocity_x'] *= -1
+        if meteor['y'] < 0 or meteor['y'] > SolarSystem:
+            meteor['velocity_y'] *= -1
+
+        for planet in Planet:
+            dx = planet['x'] - meteor['x']
+            dy = planet['y'] - meteor['y']
+
+            distance = (dx**2 + dy**2) **0.5
+            if distance < planet['gravity_radius']:
+                gravity_force = planet['mass'] // distance ** 2
+                angel = math.atan2(dy, dx)
+                meteor['velocity_x'] += gravity_force * math.cos(angel)
+                meteor['velocity_y'] += gravity_force * math.sin(angel)
 
     def add_body(self, body):
         """

@@ -59,7 +59,7 @@ class Sun1(SolarSystemBody):
             velocity (tuple): The initial velocity of the sun (default is (0, 0)).
         """
         super().__init__(solar_system, mass, position, velocity)
-        self.color("yellow")
+        self.color("red")
 
 
 class Sun2(SolarSystemBody):
@@ -74,4 +74,4 @@ class Sun2(SolarSystemBody):
             velocity (tuple): The initial velocity of the sun (default is (0, 0)).
         """
         super().__init__(solar_system, mass, position, velocity)
-        self.color("red")
+        self.color("yellow")
