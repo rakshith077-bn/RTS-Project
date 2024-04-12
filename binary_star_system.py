@@ -1,11 +1,13 @@
 import tracemalloc 
 import csv 
-from solarsystem import Planet, SolarSystem  
+import random
+import math
+import turtle
+from solarsystem import SolarSystem  
+from solarsystem import Planet
 from celestialbody import Sun1, Sun2 
 
 solar_system = SolarSystem(width=1400, height=900) 
-solar_system_instance = SolarSystem(width=1400, height=900)  
-
 
 suns = (
     Sun1(solar_system, mass=10_000, position=(-200, 0), velocity=(0, 3.5)),
@@ -20,6 +22,42 @@ planets = (
 
 tracemalloc.start()
 old_limit = tracemalloc.get_traceback_limit()
+
+meteor_turtles = []
+
+def create_meteor_turtle(x, y):
+    # Create a new turtle object
+    meteor_turtle = turtle.Turtle()
+    meteor_turtle.speed(0)  # Set the drawing speed to maximum
+    meteor_turtle.shape("circle")  # Set the shape of the turtle to a circle
+    meteor_turtle.color("gray")  # Set the color of the turtle to gray
+    meteor_turtle.penup()  # Lift the pen up to prevent drawing lines
+    meteor_turtle.goto(x, y)  # Move the turtle to the specified position
+    meteor_turtles.append(meteor_turtle)  # Append the turtle to the list
+
+def move_meteor(meteor):
+    # Update meteor position to move in a straight line
+    meteor['x'] += meteor['velocity_x']
+    meteor['y'] += meteor['velocity_y']
+
+meteors = []
+
+# Add meteors from the left side
+for _ in range(4):
+    meteors.append({'x': random.randint(-1000, -800), 'y': random.randint(-500, 500), 'velocity_x': random.uniform(5, 10), 'velocity_y': 0})
+
+# Add meteors from the top and bottom
+for _ in range(4):
+    x = random.randint(-800, 800)
+    y = random.choice([-500, 500])
+    meteors.append({'x': x, 'y': y, 'velocity_x': random.uniform(-10, 10), 'velocity_y': random.uniform(5, 10) if y == -500 else random.uniform(-10, -5)})
+
+# Add meteors from the right side
+for _ in range(4):
+    meteors.append({'x': random.randint(800, 1000), 'y': random.randint(-500, 500), 'velocity_x': random.uniform(-10, -5), 'velocity_y': 0})
+
+for meteor in meteors:
+    create_meteor_turtle(meteor['x'], meteor['y'])
 
 with open('snapshot_binary.csv', 'a', newline='') as csvfile:
     csv_writer = csv.writer(csvfile)
@@ -37,7 +75,7 @@ with open('snapshot_binary.csv', 'a', newline='') as csvfile:
 
         top_stats = snapshot_binary2.compare_to(snapshot_binary1, 'lineno')
 
-        print(" Top Stats ")
+        print(" \nTop Stats \n")
         for stat in top_stats[:5]:
             size_change = stat.size
             count_change = stat.count
@@ -49,3 +87,11 @@ with open('snapshot_binary.csv', 'a', newline='') as csvfile:
 
             formatted_stat = f"{snapshot_count}, {size_change}, {count_change}, {average_change:.2f}"
             csv_writer.writerow([formatted_stat])
+
+        # Move and draw meteors
+        for meteor, meteor_turtle in zip(meteors, meteor_turtles):
+            move_meteor(meteor)
+            meteor_turtle.goto(meteor['x'], meteor['y'])
+            meteor_turtle.dot(0.5)  # Draw meteor as a small dot
+        
+        turtle.update()
