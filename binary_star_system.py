@@ -6,7 +6,6 @@ from solarsystem import SolarSystem
 from solarsystem import Planet
 from celestialbody import Sun1, Sun2 
 
-# Define the Solar System
 solar_system = SolarSystem(width=1400, height=900) 
 
 # Define the suns and planets
@@ -35,26 +34,22 @@ def create_meteor_turtle(x, y):
     meteor_turtle.penup()  # Lift the pen up to prevent drawing lines
     meteor_turtle.goto(x, y)  # Move the turtle to the specified position
     meteor_turtles.append(meteor_turtle)  # Append the turtle to the list
-    meteor_turtle.dot(2)
 
 def move_meteor(meteor):
     # Update meteor position to move in a straight line
     meteor['x'] += meteor['velocity_x']
     meteor['y'] += meteor['velocity_y']
+    print(f"\n Meteor moved to ({meteor['x']}, {meteor['y']}) \n")
 
 meteors = []
 
-def edf_schedule(meteors):
-    current_time = 0
-    while meteors:
-        next_meteor = min(meteors, key=lambda x: x['deadline'])
-        if next_meteor['deadline'] <= current_time:
-            print(f"Meteor missed deadline at position ({next_meteor['x']}, {next_meteor['y']})!")
-        else:
-            move_meteor(next_meteor)
-            print(f"Moving meteor at position ({next_meteor['x']}, {next_meteor['y']})")
-            meteors.remove(next_meteor)
-        current_time += 1
+def tdm_schedule(meteors, time_slot):
+    for meteor in meteors:
+        # Check if the meteor's time slot matches the current time
+        if meteor['time_slot'] == time_slot:
+            # Move the meteor
+            move_meteor(meteor)
+            print(f"Moving meteor at position ({meteor['x']}, {meteor['y']})")
 
 # Add meteors from the left side
 for _ in range(4):
@@ -73,9 +68,11 @@ for _ in range(4):
 for meteor in meteors:
     create_meteor_turtle(meteor['x'], meteor['y'])
 
-# Set deadlines for meteors
-for meteor in meteors:
-    meteor['deadline'] = random.randint(100, 500)
+# Assign time slots to meteors
+num_time_slots = 10
+time_slot_duration = 10
+for i, meteor in enumerate(meteors):
+    meteor['time_slot'] = i % num_time_slots
 
 with open('snapshot_binary.csv', 'a', newline='') as csvfile:
     csv_writer = csv.writer(csvfile)
@@ -105,14 +102,16 @@ with open('snapshot_binary.csv', 'a', newline='') as csvfile:
 
             formatted_stat = f"{snapshot_count}, {size_change}, {count_change}, {average_change:.2f}"
             csv_writer.writerow([formatted_stat])
-
-            # Schedule meteors using EDF algorithm
-            edf_schedule(meteors)
-
-            # Move and draw meteors
-            for meteor, meteor_turtle in zip(meteors, meteor_turtles):
-                move_meteor(meteors)
-                meteor_turtle.goto(meteor['x'], meteor['y'])
-                meteor_turtle.dot(0.5)  # Draw meteor as a small dot
             
-            turtle.update()
+        # Schedule meteors using TDM algorithm
+        num_time_slots = 10
+        for time_slot in range(num_time_slots):
+            tdm_schedule(meteors, time_slot)
+
+        # Move and draw meteors
+        for meteor, meteor_turtle in zip(meteors, meteor_turtles):
+            move_meteor(meteor)
+            meteor_turtle.goto(meteor['x'], meteor['y'])
+            meteor_turtle.dot(0.5)  # Draw meteor as a small dot
+        
+        turtle.update()

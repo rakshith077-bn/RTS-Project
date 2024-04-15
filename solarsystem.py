@@ -6,7 +6,7 @@ from itertools import cycle
 from heapq import heappush, heappop
 from celestialbody import SolarSystemBody
 from body_calculations import calculate_all_body_interactions
- 
+
 class Planet(SolarSystemBody):
     colours = cycle(["teal", "magenta", "blue", "red", "green", "yellow"])
 
@@ -15,10 +15,17 @@ class Planet(SolarSystemBody):
         self.color(next(Planet.colours))
         self.orbit_trail = []
 
+        self.eccentricity = None
+        self.semi_major_axis = None
+        self.orbit_period = None
+
+        self.solar_system = solar_system
+
     def move(self):
         super().move()
         self.orbit_trail.append((self.xcor(), self.ycor()))
         self.orbit_trail = self.orbit_trail[-100:]
+
 
     def draw(self):
         super().draw()
@@ -31,6 +38,7 @@ class Planet(SolarSystemBody):
                 self.pendown()
                 self.goto(end)
                 self.penup()
+
         x, y = self.position()
 
 class SolarSystem:
@@ -45,8 +53,9 @@ class SolarSystem:
         self.solar_system = turtle.Screen()
         self.solar_system.tracer(0)
         self.solar_system.setup(width, height)
-        self.solar_system.bgcolor("white")
+        self.solar_system.bgcolor("black")
         self.bodies = []
+
 
     def add_body(self, body):
         """

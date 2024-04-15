@@ -1,6 +1,6 @@
 # simplesolarsystem.py
 from solarsystem import SolarSystem, Sun1, Planet  
-from celestialbody import CelestialBodyTask 
+from celestialbody import Sun1, Sun2 
 from utilitties import calculate_priority
 from visualization import plot_metrics
 import time
