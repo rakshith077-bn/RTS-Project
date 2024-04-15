@@ -74,44 +74,43 @@ time_slot_duration = 10
 for i, meteor in enumerate(meteors):
     meteor['time_slot'] = i % num_time_slots
 
-with open('snapshot_binary.csv', 'a', newline='') as csvfile:
-    csv_writer = csv.writer(csvfile)
-    csv_writer.writerow(["Snapshot", "Size", "Count", "Average Count"])
+snapshot_count = 0
 
-    snapshot_count = 0
+while True:
+    snapshot_binary1 = tracemalloc.take_snapshot()
+    
+    solar_system.calculate_all_body_interactions()
+    solar_system.update_all()
 
-    while True:
-        snapshot_binary1 = tracemalloc.take_snapshot()
-        
-        solar_system.calculate_all_body_interactions()
-        solar_system.update_all()
+    snapshot_binary2 = tracemalloc.take_snapshot()
 
-        snapshot_binary2 = tracemalloc.take_snapshot()
+    top_stats = snapshot_binary2.compare_to(snapshot_binary1, 'lineno')
 
-        top_stats = snapshot_binary2.compare_to(snapshot_binary1, 'lineno')
+    print(" \nTop Stats \n")
+    for stat in top_stats[:5]:
+        size_change = stat.size
+        count_change = stat.count
+        average_change = stat.size / stat.count if stat.count != 0 else 0
 
-        print(" \nTop Stats \n")
-        for stat in top_stats[:5]:
-            size_change = stat.size
-            count_change = stat.count
-            average_change = stat.size / stat.count if stat.count != 0 else 0
+        print(f"Size: {size_change}, Count: {count_change}, Average Change: {average_change}\n")
 
-            print(f"Size: {size_change}, Count: {count_change}, Average Change: {average_change}\n")
+        snapshot_count += 1
 
-            snapshot_count += 1
+        formatted_stat = f"{snapshot_count}, {size_change}, {count_change}, {average_change}"
+    
+    with open('snapshot_binary.csv', 'a') as csvfile:
+        csv_writer = csv.writer(csvfile) 
+        new_data = [snapshot_count, size_change, count_change, average_change] 
+        csv_writer.writerow(new_data)
+    # Schedule meteors using TDM algorithm
+    num_time_slots = 10
+    for time_slot in range(num_time_slots):
+        tdm_schedule(meteors, time_slot)
 
-            formatted_stat = f"{snapshot_count}, {size_change}, {count_change}, {average_change:.2f}"
-            csv_writer.writerow([formatted_stat])
-            
-        # Schedule meteors using TDM algorithm
-        num_time_slots = 10
-        for time_slot in range(num_time_slots):
-            tdm_schedule(meteors, time_slot)
-
-        # Move and draw meteors
-        for meteor, meteor_turtle in zip(meteors, meteor_turtles):
-            move_meteor(meteor)
-            meteor_turtle.goto(meteor['x'], meteor['y'])
-            meteor_turtle.dot(0.5)  # Draw meteor as a small dot
-        
-        turtle.update()
+    # Move and draw meteors
+    for meteor, meteor_turtle in zip(meteors, meteor_turtles):
+        move_meteor(meteor)
+        meteor_turtle.goto(meteor['x'], meteor['y'])
+        meteor_turtle.dot(0.5)  # Draw meteor as a small dot
+    
+    turtle.update()
