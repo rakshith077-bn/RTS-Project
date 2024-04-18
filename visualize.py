@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-#{snapshot_count}, {size_change}, {count_change}, {average_change}
+# {snapshot_count}, {size_change}, {count_change}, {average_change}
 
 # Read the CSV data into a DataFrame
 df = pd.read_csv('snapshot_binary.csv', header=None)

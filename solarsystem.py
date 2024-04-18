@@ -1,7 +1,6 @@
 import turtle
 import math
 import time
-import random
 from itertools import cycle
 from heapq import heappush, heappop
 from celestialbody import SolarSystemBody
@@ -25,7 +24,6 @@ class Planet(SolarSystemBody):
         super().move()
         self.orbit_trail.append((self.xcor(), self.ycor()))
         self.orbit_trail = self.orbit_trail[-100:]
-
 
     def draw(self):
         super().draw()
@@ -55,7 +53,6 @@ class SolarSystem:
         self.solar_system.setup(width, height)
         self.solar_system.bgcolor("black")
         self.bodies = []
-
 
     def add_body(self, body):
         """
@@ -135,7 +132,6 @@ class SolarSystem:
         end_time = time.time()
         check_collision = end_time - start_time
         print(f"Collision Calc: {check_collision:.7f} s")
-
 
     def right_monotonic_schedule(self, tasks):
         """
